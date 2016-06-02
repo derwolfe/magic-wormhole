@@ -819,6 +819,23 @@ class Wormholes(ServerBase, unittest.TestCase):
         self.flushLoggedErrors(WrongPasswordError)
 
     @inlineCallbacks
+    def test_wrong_password_with_spaces(self):
+        w1 = wormhole.wormhole(APPID, self.relayurl, reactor)
+        w2 = wormhole.wormhole(APPID, self.relayurl, reactor)
+        code = yield w1.get_code()
+        code_no_dashes = code.replace('-', ' ')
+
+        with self.assertRaises(ValueError) as ex:
+            w2.set_code(code_no_dashes)
+        expected_msg = "code (%s) contains spaces. Words must be separated by dashes" % code_no_dashes
+        self.assertEqual(expected_msg, str(ex.exception))
+
+        yield w1.close()
+        yield w2.close()
+        self.flushLoggedErrors(ValueError)
+
+
+    @inlineCallbacks
     def test_verifier(self):
         w1 = wormhole.wormhole(APPID, self.relayurl, reactor)
         w2 = wormhole.wormhole(APPID, self.relayurl, reactor)

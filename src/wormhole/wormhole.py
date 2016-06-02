@@ -476,6 +476,11 @@ class _Wormhole:
 
     def _event_learned_code(self, code):
         self._timing.add("code established")
+        if ' ' in code:
+            raise ValueError(
+                "code (%s) contains spaces. Words must be separated by dashes"
+                % code
+            )
         self._code = code
         mo = re.search(r'^(\d+)-', code)
         if not mo:
